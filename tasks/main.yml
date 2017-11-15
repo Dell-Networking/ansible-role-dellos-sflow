@@ -1,5 +1,14 @@
 ---
 # tasks file for Dell-Networking.dellos-sflow
+
+ - name: "Generating sflow configuration for dellos9"
+   template:
+      src: dellos9_sflow.j2
+      dest: "{{ build_dir }}/sflow9_{{hostname}}.conf.part"
+   when: ansible_net_os_name == "dellos9" and ((dellos_cfg_generate | default('False')) | bool)
+#   notify: save config os9
+   register: generate_output
+
  - name: "Provisioning sflow configuration for dellos9"
    dellos9_config:
       src: dellos9_sflow.j2
@@ -7,3 +16,4 @@
    when: ansible_net_os_name == "dellos9"
 #   notify: save config os9
    register: output
+

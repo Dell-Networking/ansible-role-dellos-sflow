@@ -1,108 +1,89 @@
-Sflow Role for Dell EMC Networking OS
-======================================
+sFlow role
+==========
 
-This role facilitates the configuration of global and interface level sflow attributes. It supports the configuration of sflow collectors at global level. Enabling and disabling of sflow and specification of sflow polling-interval, sample-rate, max-datagram size , etc; are supported at interface and global level.This role is abstracted for dellos9.
+This role facilitates the configuration of global and interface level sFlow attributes. It supports the configuration of sFlow collectors at the global level, enable/disable, and specification of sFlow polling-interval, sample-rate, max-datagram size, and so on are supported at the interface and global level. This role is abstracted for dellos9.
 
+The dellos-sflow role requires an SSH connection for connectivity to a Dell EMC Networking device. You can use any of the built-in Dell EMC Networking OS connection variables, or the ``provider`` dictionary.
 
 Installation
 ------------
 
-```
-ansible-galaxy install Dell-Networking.dellos-sflow
-```
+    ansible-galaxy install Dell-Networking.dellos-sflow
 
-Requirements
-------------
-This role requires an SSH connection for connectivity to your Dell EMC Networking device. You can use any of the built-in Dell EMC Networking OS connection variables, or the ``provider``
-dictionary.
-
-Role Variables
+Role variables
 --------------
 
-Any role variable with a corresponding state variable set to absent negates the configuration of that variable. For variables with no state variable, setting an empty value for the variable negates the corresponding configuration.
+- Role is abstracted using the *ansible_net_os_name* variable that can take the dellos9 value
+- If *dellos_cfg_generate* is set to true, the variable generates the role configuration commands in a file
+- Any role variable with a corresponding state variable set to absent negates the configuration of that variable
+- Setting an empty value for any variable negates the corresponding configuration
+- *dellos_sflow* (dictionary) contains keys along with *interface name* (dictionary)
+- Interface name can correspond to any of the valid dellos9 physical interfaces with the unique interface identifier name
+- Interface name must be in *<interfacename> <tuple>* format; physical interface name can be in *fortyGigE 1/1* format for dellos9 devices
+- Variables and values are case-sensitive
 
-The variables and its values are case-sensitive.
+**dellos_sflow keys**
 
-``dellos_sflow`` dictionary contains the following keys along with ``interface name `` dictionary.
-The interface name can correspond to any of the valid dellos9 physical interfaces with the unique interface identifier name.
-The interface name must be in the format `<interfacename> <tuple>`. 
-For example, the physical interface name can be in the format fortyGigE 1/1 for dellos9 devices.
+| Key        | Type                      | Description                                             | Support               |
+|------------|---------------------------|---------------------------------------------------------|-----------------------|
+| ``sflow_enable`` | boolean: true,false* | Enables sFlow at the global level  | dellos9 |
+| ``collector``    | list                  | Configures collector information (see ``collector.*``); only two collectors can be configured on dellos9 devices | dellos9 |
+| ``collector.collector_ip`` | string (required) | Configures IPv4/IPv6 address for the collector | dellos9 |
+| ``collector.agent_addr`` | string (required) | Configures IPv4/IPv6 address for the sFlow agent to the collector | dellos9 |
+| ``collector.udp_port`` | integer | Configures UDP port range at the collector level (1 to 65535) | dellos9 |
+| ``collector.max_datagram_size`` | integer | Configures the maximum datagram size for the sflow datagrams generated (400 to 1500) | dellos9 |
+| ``collector.vrf`` | boolean: true,false* | Configures the management VRF to reach collector if set to true; can be enabled only for IPv4 collector addresses | dellos9 |
+| ``polling_interval`` | integer | Configures the global default counter polling-interval (15 to 86400) | dellos9 |
+| ``sample_rate`` | integer | Configures the global default sample-rate (256 to 8388608) | dellos9 |
+| ``extended_switch`` | boolean: true,false* | Enables packing extended information for the switch if set to true | dellos9  |
+| ``max_header_size`` | boolean: true,false* | Enables extended header copy size of 256 bytes if set to true at the global level | dellos9 |
 
-|        Key | Type                      | Notes                                                                                                                                                                                     |
-|------------|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| sflow_enable | boolean: true, false* | Enables sflow at the global level.  |
-| collector    | list                  | Configures collector information. See the following collector.* keys for each list item. Only two collectors can be configured on dellos9 devices. |
-| collector.collector_ip | string (required) | Configures ipv4/ipv6 address for the collector. |
-| collector.agent_addr | string (required) | Configures ipv4/ipv6 address for the sflow agent to the collector. |
-| collector.udp_port | integer | Configures udp-port at the collector level. It can be specified in the range 1-65535. |
-| collector.max_datagram_size | integer | Configures maximum datagram size for the sflow datagrams generated. It can be in the range 400-1500. |
-| collector.vrf | boolean: true, false* | Configures management vrf to reach collector if this key is set to true. It can be enabled only for ipv4 collector addresses. |
-| polling_interval | integer | Configures global default counter polling-interval. It can be specified in the range 15-86400.|
-| sample_rate | integer | Configures global default sample-rate. It can be specified in the range 256-8388608. |
-| extended_switch | boolean: true,false* | Enable packing extended information for the switch if the key is set to true. |
-| max_header_size | boolean: true,false* | Enable extended header copy size of 256 bytes  if this key is set to true at the global level. |
+> **NOTE**: Asterisk (*) denotes the default value if none is specified.
 
-``interface name`` contains the following keys:
+**interface name keys**
 
-|        Key | Type                      | Notes                                                                                                                                                                                      |
-|------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| sflow_enable | boolean: true, false*   | Enables sflow at the interface level.  | 
-| ingress_enable | boolean: true, false* | Enables ingress sflow at the interface level.  | 
-| polling_interval | integer | Configures interface level default counter polling-interval. It can be specified in the range 15-86400. |
-| max_header_size | boolean: true,false* | Enable extended header copy size of 256 bytes  if this key is set to true at the interface level. |  
-| sample_rate | integer | Configures interface level default sample-rate. It can be specified in the range 256-8388608. | 
+| Key        | Type                      | Notes                                                   |
+|------------|---------------------------|---------------------------------------------------------|
+| ``sflow_enable`` | boolean: true,false*   | Enables sFlow at the interface level  | 
+| ``ingress_enable`` | boolean: true,false* | Enables ingress sFlow at the interface level  | 
+| ``polling_interval`` | integer | Configures the interface level default counter polling-interval (15 to 86400) |
+| ``max_header_size`` | boolean: true,false* | Enables extended header copy size of 256 bytes if set to true at the interface level |  
+| ``sample_rate`` | integer | Configures the interface level default sample-rate (256 to 8388608) | 
 
-```
-Note: Asterisk (*) denotes the default value if none is specified. 
-```
+> **NOTE**: Asterisk (*) denotes the default value if none is specified. 
 
-Connection Variables
+Connection variables
 --------------------
 
-Ansible Dell EMC Networking roles require the following connection information to establish 
-communication with the nodes in your inventory. This information can exist in
-the Ansible group_vars or host_vars directories, or in the playbook itself.
+Ansible Dell EMC Networking roles require connection information to establish communication with the nodes in your inventory. This information can exist in the Ansible *group_vars* or *host_vars* directories, or in the playbook itself.
 
+| Key         | Required | Choices    | Description                                         |
+|-------------|----------|------------|-----------------------------------------------------|
+| ``host`` | yes      |            | Specifies the hostname or address for connecting to the remote device over the specified transport |
+| ``port`` | no       |            | Specifies the port used to build the connection to the remote device; if value is unspecified, it defaults to 22 |
+| ``username`` | no       |            | Specifies the username that authenticates the CLI login for connection to the remote device; if value is unspecified, the ANSIBLE_NET_USERNAME environment variable value is used |
+| ``password`` | no       |            | Specifies the password that authenticates the connection to the remote device; if value is unspecified, the ANSIBLE_NET_PASSWORD environment variable value is used |
+| ``authorize`` | no       | yes, no*   | Instructs the module to enter privileged mode on the remote device before sending any commands; if value is unspecified, the ANSIBLE_NET_AUTHORIZE environment variable value is used, and the device attempts to execute all commands in non-privileged mode |
+| ``auth_pass`` | no       |            | Specifies the password to use if required to enter privileged mode on the remote device; if *authorize* is set to no, this key is not applicable; if value is unspecified, the ANSIBLE_NET_AUTH_PASS environment variable value is used |
+| ``provider`` | no       |            | Passes all connection arguments as a dictonary object; all constraints (such as required, choices) must be met either by individual arguments or values in this dictionary |
 
-
-|         Key | Required | Choices    | Description                              |
-| ----------: | -------- | ---------- | ---------------------------------------- |
-|        host | yes      |            | Hostname or address for connecting to the remote device over the specified ``transport``. The value of this key is the destination address for the transport. |
-|        port | no       |            | Port used to build the connection to the remote device. If the value of this key does not specify the value, the value defaults to 22. |
-|    username | no       |            | Configures the username that authenticates the connection to the remote device. The value of this key authenticates the CLI login. If this key does not specify a value, the value of environment variable ANSIBLE_NET_USERNAME is used instead. |
-|    password | no       |            | Specifies the password that authenticates the connection to the remote device. If this key does not specify the value, the value of environment variable ANSIBLE_NET_PASSWORD is used instead. |
-|   authorize | no       | yes, no*   | Instructs the module to enter privileged mode on the remote device before sending any commands. If this key does not specify the value, the value of environment variable ANSIBLE_NET_AUTHORIZE is used instead. If not specified, the device attempts to execute all commands in non-privileged mode.|
-|   auth_pass | no       |            | Specifies the password to use if required to enter privileged mode on the remote device. If ``authorize`` is set to no, then this key is not applicable. If this key does not specify the value, the value of environment variable ANSIBLE_NET_AUTH_PASS is used instead. |
-|   transport | yes      | cli*       | Configures the transport connection to use when connecting to the remote device. This key supports connectivity to the device over CLI (SSH).  |
-|    provider | no       |            | Convenient method that passes all of the above connection arguments as a dictonary object. All constraints (such as required, choices) must be met either by individual arguments or values in this dictonary. |
-
-
-```
-Note: Asterisk (*) denotes the default value if none is specified.
-```
+> **NOTE**: Asterisk (*) denotes the default value if none is specified.
 
 Dependencies
 ------------
 
-The dellos-sflow role is built on modules included in the core Ansible code.
-These modules were added in Ansible version 2.2.0.
+The *dellos-sflow* role is built on modules included in the core Ansible code. These modules were added in Ansible version 2.2.0.
 
-Example Playbook
+Example playbook
 ----------------
 
-The following example uses the dellos.dellos-sflow role to configure sflow attributes at interface and global level.
-The example creates a ``hosts`` file with the switch details and corresponding 
-variables.
-It writes a simple playbook that only references the dellos-sflow role. 
-By including the role, you automatically get access to all of the tasks to configure sflow
-features. 
+This example uses the ``dellos.dellos-sflow`` role to configure sflow attributes at interface and global level. It creates a *hosts* file with the switch details and corresponding variables. The hosts file should define *ansible_net_os_name* variable with corresponding Dell EMC networking OS name. When *dellos_cfg_generate* is set to true, the variable generates the configuration commands as a .part file in *build_dir* path. By default, the variable is set to false. It writes a simple playbook that only references the ``dellos-sflow`` role. By including the role, you automatically get access to all of the tasks to configure sFlow features. 
 
-
-Sample ``hosts`` file:
+**Sample hosts file**
  
     leaf1 ansible_host= <ip_address> ansible_net_os_name= <OS name(dellos9)>
 
-Sample ``host_vars/leaf1``:
+**Sample host_vars/leaf1**
 
     hostname: leaf1
     provider:
@@ -111,8 +92,7 @@ Sample ``host_vars/leaf1``:
       password: xxxxx
       authorize: yes
       auth_pass: xxxxx 
-      transport: cli
-
+    build_dir: ../temp/dellos9
     dellos_sflow:
       sflow_enable: true
       collector:
@@ -133,30 +113,14 @@ Sample ``host_vars/leaf1``:
         sample_rate: 1024
         max_header_size: true
 
- 
-Simple playbook to setup sflow, ``leaf.yaml``:
+**Simple playbook to setup sflow - leaf.yaml**
 
     - hosts: leaf1
       roles:
          - Dell-Networking.dellos-sflow
 
-Then run with:
+**Run**
 
     ansible-playbook -i hosts leaf.yaml
 
-License
---------
-
-Copyright (c) 2016, Dell Inc. All rights reserved.
- 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
- 
-    http://www.apache.org/licenses/LICENSE-2.0
- 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+(c) 2017 Dell EMC
