@@ -111,7 +111,7 @@ sflow max-header-size extended
 no sflow max-header-size extended
     {% endif %}
   
-  {% else %}  
+  {% elif '/' in key %}  
   {% set intf_vars  = dellos_sflow[key] %}
 interface {{ key }}
     {% if intf_vars.sflow_enable is defined and intf_vars.sflow_enable %}
