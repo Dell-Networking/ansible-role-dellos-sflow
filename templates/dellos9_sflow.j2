@@ -28,7 +28,7 @@ dellos_sflow:
 {% if dellos_sflow is defined and dellos_sflow %}
 
 {% if dellos_sflow %}
-{% for key,value in dellos_sflow.iteritems() %}
+{% for key,value in dellos_sflow.items() %}
   {% if key == "sflow_enable" %}
     {% if value %}
 sflow enable
