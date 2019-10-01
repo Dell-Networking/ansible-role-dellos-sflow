@@ -15,7 +15,7 @@ dellos_sflow:
         udp_port: 3
         max_datagram_size: 1002
         vrf: test
-       state: absent
+        state: absent
     polling_interval: 24
     sample_rate: 256
     extended_switch: true
